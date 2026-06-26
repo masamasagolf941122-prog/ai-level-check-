@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI LEVEL CHECK — あなたのAI活用力は上位何%？</title>
+  <meta name="description" content="ビジネスパーソン向けAI活用スキル診断。10問に答えるだけで全ユーザーと比較できます。">
+  <meta property="og:title" content="AI LEVEL CHECK — あなたのAI活用力は上位何%？">
+  <meta property="og:description" content="ビジネスパーソン向けAI活用スキル診断。10問に答えるだけ。">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #060f1a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 16px 48px;
+    }
+
+    /* NAV */
+    .nav {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      margin-bottom: 0;
+    }
+    .logo { font-size: 14px; font-weight: 700; letter-spacing: 0.1em; color: #1E90FF; }
+    .nav-tag { font-size: 11px; color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.06); padding: 3px 12px; border-radius: 20px; }
+
+    /* WRAPPER */
+    .wrap { width: 100%; max-width: 600px; }
+    .screen { display: none; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* START */
+    #s-start {
+      align-items: center;
+      text-align: center;
+      padding: 56px 0 0;
+    }
+    .eyebrow { font-size: 12px; letter-spacing: 0.14em; color: #1E90FF; text-transform: uppercase; margin-bottom: 24px; }
+    .start-h1 { font-size: clamp(32px, 8vw, 48px); font-weight: 800; line-height: 1.15; letter-spacing: -0.03em; margin-bottom: 20px; }
+    .start-h1 span { color: #1E90FF; }
+    .start-sub { font-size: 16px; color: rgba(255,255,255,0.5); line-height: 1.7; max-width: 380px; margin: 0 auto 40px; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #1E90FF; color: #fff; border: none;
+      border-radius: 12px; padding: 16px 36px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { background: #1a7fe0; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .start-note { font-size: 12px; color: rgba(255,255,255,0.2); margin-top: 16px; }
+
+    /* QUIZ */
+    #s-quiz { padding-top: 32px; }
+    .qmeta { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .cat-pill { font-size: 11px; color: #1E90FF; background: rgba(30,144,255,0.12); padding: 4px 14px; border-radius: 20px; font-weight: 600; letter-spacing: 0.04em; }
+    .qnum { font-size: 12px; color: rgba(255,255,255,0.25); margin-left: auto; }
+    .prog-track { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; margin-bottom: 32px; }
+    .prog-fill { height: 100%; background: #1E90FF; border-radius: 2px; transition: width 0.4s ease; }
+    .q-text { font-size: clamp(17px, 4vw, 20px); font-weight: 600; line-height: 1.5; color: #fff; margin-bottom: 24px; }
+    .opts { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .opt {
+      text-align: left; padding: 15px 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 12px; font-size: 15px;
+      color: rgba(255,255,255,0.7); cursor: pointer;
+      line-height: 1.5; transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+    .opt:hover { border-color: rgba(30,144,255,0.5); background: rgba(30,144,255,0.08); color: #fff; }
+    .opt.sel { border-color: #1E90FF; background: rgba(30,144,255,0.13); color: #fff; }
+    .opt-l { font-weight: 700; margin-right: 12px; color: rgba(255,255,255,0.25); font-size: 13px; }
+    .opt.sel .opt-l, .opt:hover .opt-l { color: #1E90FF; }
+    .quiz-foot { display: flex; justify-content: flex-end; padding-bottom: 48px; }
+    .btn-next {
+      padding: 12px 28px; background: #1E90FF; color: #fff;
+      border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
+      cursor: pointer; opacity: 0.3; pointer-events: none;
+      font-family: 'Inter', sans-serif; transition: background 0.15s;
+    }
+    .btn-next.on { opacity: 1; pointer-events: all; }
+    .btn-next.on:hover { background: #1a7fe0; }
+
+    /* RESULT */
+    #s-result { padding-top: 40px; }
+    .res-hero { text-align: center; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.07); margin-bottom: 28px; }
+    .res-eyebrow { font-size: 12px; letter-spacing: 0.12em; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 10px; }
+    .res-pct-num { font-size: clamp(72px, 18vw, 96px); font-weight: 800; color: #1E90FF; line-height: 1; letter-spacing: -0.04em; }
+    .res-pct-unit { font-size: 24px; font-weight: 600; color: rgba(255,255,255,0.4); margin-left: 6px; vertical-align: middle; }
+    .res-rank { font-size: 22px; font-weight: 700; color: #fff; margin: 12px 0 24px; }
+    .share-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #000; color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px; padding: 11px 22px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: border-color 0.15s;
+    }
+    .share-btn:hover { border-color: rgba(255,255,255,0.45); }
+    .x-icon { width: 15px; height: 15px; fill: #fff; flex-shrink: 0; }
+
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 16px 10px; text-align: center; }
+    .stat-v { font-size: 24px; font-weight: 800; color: #fff; }
+    .stat-l { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+
+    /* フィードバック */
+    .fb-section { border-radius: 14px; padding: 20px; margin-bottom: 16px; border: 1px solid; }
+    .fb-section.good { background: rgba(34,197,94,0.06); border-color: rgba(34,197,94,0.2); }
+    .fb-section.improve { background: rgba(251,146,60,0.06); border-color: rgba(251,146,60,0.2); }
+    .fb-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+    .fb-icon { font-size: 15px; }
+    .fb-label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .fb-section.good .fb-label { color: #22c55e; }
+    .fb-section.improve .fb-label { color: #fb923c; }
+    .fb-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .fb-list li { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; padding-left: 18px; position: relative; }
+    .fb-list li::before { content: ''; position: absolute; left: 0; top: 8px; width: 5px; height: 5px; border-radius: 50%; }
+    .fb-section.good .fb-list li::before { background: #22c55e; }
+    .fb-section.improve .fb-list li::before { background: #fb923c; }
+
+    .section { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+    .sec-title { font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 16px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+    .cat-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .cat-row:last-child { margin-bottom: 0; }
+    .cat-name { font-size: 13px; color: rgba(255,255,255,0.55); width: 95px; flex-shrink: 0; }
+    .cat-track { flex: 1; height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+    .cat-bar { height: 100%; border-radius: 3px; background: #1E90FF; transition: width 0.6s ease; }
+    .cat-val { font-size: 13px; font-weight: 700; color: #fff; width: 32px; text-align: right; }
+    .dist-wrap { position: relative; height: 140px; }
+
+    .retry {
+      display: block; width: 100%; padding: 14px;
+      background: transparent; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; font-size: 14px; color: rgba(255,255,255,0.35);
+      cursor: pointer; margin-top: 8px; margin-bottom: 48px;
+      font-family: 'Inter', sans-serif; transition: all 0.15s;
+    }
+    .retry:hover { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <span class="logo">AI LEVEL CHECK</span>
+    <span class="nav-tag">ビジネスパーソン向け</span>
+  </nav>
+
+  <div class="wrap">
+
+    <!-- START -->
+    <div class="screen active" id="s-start">
+      <div class="eyebrow">無料 · 2分 · 10問</div>
+      <h1 class="start-h1">あなたは<br><span id="teaser">何%</span>？</h1>
+      <p class="start-sub">ビジネスにおけるAI活用スキルを診断。あなたのスコアを全ユーザーと比較します。</p>
+      <button class="btn-primary" onclick="startQuiz()">
+        ⚡ 今すぐ診断する
+      </button>
+      <p class="start-note">名前・メール不要。匿名で診断できます。</p>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="screen" id="s-quiz">
+      <div class="qmeta">
+        <span class="cat-pill" id="cat-pill">基礎知識</span>
+        <span class="qnum" id="qnum">1 / 10</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+      <p class="q-text" id="q-text"></p>
+      <div class="opts" id="opts"></div>
+      <div class="quiz-foot">
+        <button class="btn-next" id="btn-next" onclick="nextQ()">次へ →</button>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="screen" id="s-result">
+      <div class="res-hero">
+        <div class="res-eyebrow">全ユーザー中</div>
+        <div>
+          <span class="res-pct-num" id="r-pct">—</span><span class="res-pct-unit">上位</span>
+        </div>
+        <div class="res-rank" id="r-rank">—</div>
+        <button class="share-btn" onclick="shareX()">
+          <svg class="x-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.766l7.733-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          Xでシェアする
+        </button>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="stat-v" id="r-score">—</div><div class="stat-l">スコア</div></div>
+        <div class="stat"><div class="stat-v" id="r-correct">—</div><div class="stat-l">満点問題数</div></div>
+        <div class="stat"><div class="stat-v" id="r-level">—</div><div class="stat-l">ランク</div></div>
+      </div>
+
+      <div class="fb-section good">
+        <div class="fb-head"><span class="fb-icon">✓</span><span class="fb-label">あなたの強み</span></div>
+        <ul class="fb-list" id="fb-good"></ul>
+      </div>
+      <div class="fb-section improve">
+        <div class="fb-head"><span class="fb-icon">↑</span><span class="fb-label">伸びしろ・改善点</span></div>
+        <ul class="fb-list" id="fb-improve"></ul>
+      </div>
+
+      <div class="section">
+        <div class="sec-title">スコア分布</div>
+        <div class="dist-wrap"><canvas id="distChart" role="img" aria-label="スコア分布グラフ。青いバーがあなたのゾーンです。"></canvas></div>
+      </div>
+
+      <div class="section">
+        <div class="sec-title">カテゴリ別スコア</div>
+        <div id="cat-bd"></div>
+      </div>
+
+      <button class="retry" onclick="resetQuiz()">もう一度診断する</button>
+    </div>
+
+  </div><!-- /wrap -->
+
+  <script>
+    const Qs = [
+      { cat:"基礎知識", text:"ChatGPT・Claude・GeminiなどのAIツールを仕事で使ったことがある？", opts:["ほぼ毎日使っている","週数回は使う","試したことはある","ほとんど使ったことがない"], sc:[3,2,1,0] },
+      { cat:"基礎知識", text:"「プロンプト」とは何か、他人に説明できる？", opts:["詳しく説明でき、他人に教えられる","なんとなく理解している","聞いたことはある","知らない"], sc:[3,2,1,0] },
+      { cat:"プロンプト設計", text:"AIに指示するとき、どのように工夫しているか？", opts:["役割・条件・出力形式を明示して指示する","なるべく詳しく書くようにしている","思いついたまま入力する","特に工夫していない"], sc:[3,2,1,0] },
+      { cat:"プロンプト設計", text:"AIの回答が期待外れだったとき、どう対処する？", opts:["指示を分解・再構成して再試行する","言い方を変えて再度聞く","別のAIツールを試す","そのまま使うか諦める"], sc:[3,2,1,0] },
+      { cat:"業務活用", text:"AIを業務で活用している場面として当てはまるものは？", opts:["資料作成・要約・翻訳・コード生成など複数用途","メール文章作成など限定的な用途","たまにアイデア出しに使う程度","業務では使っていない"], sc:[3,2,1,0] },
+      { cat:"業務活用", text:"AIツールを使うことで、作業時間をどれくらい削減できていると感じる？", opts:["週5時間以上は削減できている","週1〜5時間程度","ほとんど変わらない","むしろ時間がかかることも"], sc:[3,2,1,0] },
+      { cat:"リスク理解", text:"AIの「ハルシネーション（幻覚）」とは何か説明できる？", opts:["説明できるし、対処法も知っている","なんとなく知っている","聞いたことはある","知らない"], sc:[3,2,1,0] },
+      { cat:"リスク理解", text:"社外秘情報をAIに入力することへのリスク認識は？", opts:["明確なポリシーを持ち、実践している","なんとなく気をつけている","あまり意識したことがない","リスクがあるとは思っていなかった"], sc:[3,2,1,0] },
+      { cat:"先進活用", text:"API連携・Copilot・自動化ツールなどで、AIを業務フローに組み込んでいる？", opts:["自分で設計・構築したことがある","既存ツールとして利用している","興味はあるが未実施","そもそも何かわからない"], sc:[3,2,1,0] },
+      { cat:"先進活用", text:"AIの進化トレンド（最新モデルの動向など）を追っている？", opts:["定期的にキャッチアップし、試している","主要なニュースは把握している","たまに耳にする程度","ほとんど追っていない"], sc:[3,2,1,0] },
+    ];
+    const CATS = ["基礎知識","プロンプト設計","業務活用","リスク理解","先進活用"];
+    const DIST = [{r:"0-9",n:12},{r:"10-19",n:28},{r:"20-29",n:51},{r:"30-39",n:89},{r:"40-49",n:134},{r:"50-59",n:178},{r:"60-69",n:142},{r:"70-79",n:98},{r:"80-89",n:52},{r:"90-100",n:16}];
+    const RANKS = [
+      { min:85, title:"AIマスター 🏆", level:"S",
+        good:["複数のAIツールを使い分け、業務に最大限活かせている","プロンプト設計の原則を理解し、精度の高い指示が出せる","ハルシネーションなどのリスクを把握し、適切に対処できる","AI活用を組織・チームレベルで推進できるポジションにある"],
+        improve:["AIのファインチューニングやRAG構築など技術側への理解を深めるとさらに差がつく","社内でAI活用の仕組みや教育制度を整える役割にチャレンジできる","最新モデルの性能差を実務で比較検証し、ベストプラクティスを発信してみよう"] },
+      { min:65, title:"AI上級者 ⭐", level:"A",
+        good:["日常的にAIを業務に取り入れており、時間削減の効果を実感できている","プロンプトの基本的な工夫ができており、期待に近い出力を引き出せる","AIのリスクについても一定の知識と意識を持っている"],
+        improve:["プロンプトに「役割・条件・出力形式」を明示することで、さらに精度が上がる","API連携や自動化ツールに挑戦すると、手動作業をゼロにできる領域がある","最新モデルの違いを意識して使い分けると、用途別の最適解が見えてくる"] },
+      { min:45, title:"AI中級者 📈", level:"B",
+        good:["AIツールへの基本的な接触があり、業務での活用イメージがある","試行錯誤しながら自分なりの使い方を模索できている","新しい技術に対してオープンな姿勢がある"],
+        improve:["プロンプトに「あなたは○○の専門家です」と役割を与えるだけで出力の質が大きく変わる","週1時間でもAIを使う時間を意識的に確保すると、半年で習熟度が変わる","リスク知識（ハルシネーション・情報漏洩）を学ぶと、安心して使える範囲が広がる"] },
+      { min:25, title:"AI入門者 🌱", level:"C",
+        good:["AIに興味を持ち、診断を受けようとした行動力がある","基本的な存在は知っており、第一歩を踏み出せる状態にある"],
+        improve:["まずChatGPTまたはClaudeに無料登録して、メール1本を代わりに書かせてみよう","「プロンプト」とは「AIへの指示文」。丁寧に書くほど良い答えが返ってくる","毎日1つの業務タスクにAIを使う習慣を3週間続けると、感覚が大きく変わる"] },
+      { min:0, title:"AIビギナー 🔰", level:"D",
+        good:["この診断を受けたこと自体が、AI活用への第一歩になっている","スタート地点にいるということは、伸びしろが最も大きいということ"],
+        improve:["ChatGPT（無料）に登録して「自己紹介文を作って」と入力するだけで体験できる","難しく考えなくていい。検索の代わりにAIに質問するところから始めよう","まず1週間、気になったことを何でもAIに聞いてみることを目標にしよう"] },
+    ];
+
+    let cur = 0, ans = [], sel = null, dChart = null;
+
+    function calcTop(score) {
+      const below = DIST.slice(0, Math.min(9, Math.floor(score / 10))).reduce((s, d) => s + d.n, 0);
+      const total = DIST.reduce((s, d) => s + d.n, 0);
+      return Math.max(1, Math.round(((total - below) / total) * 100));
+    }
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function startQuiz() { cur = 0; ans = []; sel = null; showScreen('s-quiz'); renderQ(); }
+    function renderQ() {
+      const q = Qs[cur];
+      document.getElementById('cat-pill').textContent = q.cat;
+      document.getElementById('qnum').textContent = (cur + 1) + ' / ' + Qs.length;
+      document.getElementById('prog').style.width = ((cur / Qs.length) * 100) + '%';
+      document.getElementById('q-text').textContent = q.text;
+      sel = null;
+      document.getElementById('btn-next').classList.remove('on');
+      const L = ['A','B','C','D'];
+      const div = document.getElementById('opts'); div.innerHTML = '';
+      q.opts.forEach((o, i) => {
+        const b = document.createElement('button'); b.className = 'opt';
+        b.innerHTML = '<span class="opt-l">' + L[i] + '</span>' + o;
+        b.onclick = () => { sel = i; document.querySelectorAll('.opt').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); document.getElementById('btn-next').classList.add('on'); };
+        div.appendChild(b);
+      });
+    }
+    function nextQ() {
+      if (sel === null) return;
+      ans.push({ q: cur, sc: Qs[cur].sc[sel] }); cur++;
+      if (cur < Qs.length) { renderQ(); } else { showResult(); }
+    }
+    function showResult() {
+      const total = ans.reduce((s, a) => s + a.sc, 0);
+      const score = Math.round((total / (Qs.length * 3)) * 100);
+      const topPct = calcTop(score);
+      const rank = RANKS.find(r => score >= r.min);
+      const correct = ans.filter(a => a.sc === 3).length;
+      document.getElementById('r-pct').textContent = topPct + '%';
+      document.getElementById('r-rank').textContent = rank.title;
+      document.getElementById('r-score').textContent = score;
+      document.getElementById('r-correct').textContent = correct + '/10';
+      document.getElementById('r-level').textContent = rank.level;
+      document.getElementById('fb-good').innerHTML = rank.good.map(t => `<li>${t}</li>`).join('');
+      document.getElementById('fb-improve').innerHTML = rank.improve.map(t => `<li>${t}</li>`).join('');
+      if (dChart) { dChart.destroy(); dChart = null; }
+      const bucket = Math.min(9, Math.floor(score / 10));
+      const ctx = document.getElementById('distChart').getContext('2d');
+      dChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: DIST.map(d => d.r), datasets: [{ data: DIST.map(d => d.n), backgroundColor: DIST.map((_, i) => i === bucket ? '#1E90FF' : 'rgba(255,255,255,0.1)'), borderRadius: 4, borderSkipped: false }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => c.dataIndex === bucket ? 'あなたはここ (' + c.raw + '人)' : c.raw + '人' } } }, scales: { x: { ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 }, autoSkip: false, maxRotation: 0 }, grid: { display: false } }, y: { ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+      });
+      const catSc = {}; CATS.forEach(c => { catSc[c] = { t: 0, m: 0 }; });
+      ans.forEach((a, i) => { const c = Qs[i].cat; catSc[c].t += a.sc; catSc[c].m += 3; });
+      const bd = document.getElementById('cat-bd'); bd.innerHTML = '';
+      CATS.forEach(c => { const p = catSc[c].m > 0 ? Math.round((catSc[c].t / catSc[c].m) * 100) : 0; bd.innerHTML += `<div class="cat-row"><span class="cat-name">${c}</span><div class="cat-track"><div class="cat-bar" style="width:${p}%"></div></div><span class="cat-val">${p}</span></div>`; });
+      showScreen('s-result');
+    }
+    function shareX() {
+      const pct = document.getElementById('r-pct').textContent;
+      const rank = document.getElementById('r-rank').textContent;
+      const score = document.getElementById('r-score').textContent;
+      const text = `AIビジネス活用診断で上位${pct}でした！\n${rank}（スコア: ${score}/100）\n\n#AI活用診断 #AIスキル\nhttps://ai-level-check.vercel.app`;
+      window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+    }
+    function resetQuiz() { if (dChart) { dChart.destroy(); dChart = null; } startQuiz(); }
+    document.getElementById('teaser').textContent = ['上位8%？','上位23%？','上位41%？'][Math.floor(Math.random() * 3)];
+  </script>
+</body>
+</html>
