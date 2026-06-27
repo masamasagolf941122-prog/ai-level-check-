@@ -342,7 +342,7 @@
       const pct = document.getElementById('r-pct').textContent;
       const rank = document.getElementById('r-rank').textContent;
       const score = document.getElementById('r-score').textContent;
-      const text = `AIビジネス活用診断で上位${pct}でした！\n${rank}（スコア: ${score}/100）\n\n#AI活用診断 #AIスキル\nhttps://ai-level-check.vercel.app`;
+      const text = `AIビジネス活用診断で上位${pct}でした！\n${rank}（スコア: ${score}/100）\n\n#AI活用診断 #AIスキル\nhttps://ai-level-check-mu.vercel.app`;
       window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
     }
     function resetQuiz() { if (dChart) { dChart.destroy(); dChart = null; } startQuiz(); }
